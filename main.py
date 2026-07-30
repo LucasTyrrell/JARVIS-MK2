@@ -1,5 +1,8 @@
-from agent import spotify_agent, main_thread
+from agent import spotify_agent,main_thread
+from tokens import scheduler, refresh_tokens
 
+#refresh the spotify api tokens, and then set them to be refreshed every hour
+scheduler.start()
 
 #simple text based query loop for now
 def chat():
