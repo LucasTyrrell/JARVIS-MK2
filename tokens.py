@@ -8,7 +8,7 @@ import webbrowser
 import requests
 from dotenv import load_dotenv
 import json
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
@@ -22,9 +22,11 @@ headers = {
 }
 url = "https://accounts.spotify.com/api/token"
 
-scheduler = BlockingScheduler()
+scheduler = BackgroundScheduler()
 
+#to be ran every hour as the spotify access token expires after an hour
 @scheduler.scheduled_job("interval", minutes=59)
+#use the current refresh token to receive a new access token, and maybe a new refresh token
 def refresh_tokens():
     #reading the previouse refresh token from the json file
     with open("json.spotify_tokens", "r") as file:
@@ -51,7 +53,7 @@ scope = "user-read-playback-state user-modify-playback-state user-read-currently
 
 #code_respose = requests.get("https://accounts.spotify.com/api/authorize", params= {"client_id": CLIENT_ID, "response_type": "code", "redirect_uri": REDIRECT_URI, "scope": scope})
 
-
+#here in case the refresh token runs out, and you need to manually re-authenticate
 def get_initial_access_token():
     code = "AQBS9z43AG3EpF_6B2m_HdnqjJCGLji2UUrOeTvpayL3rbBQc7JspP3g1HqknL2AN9xL4OH7rmMvQS6nFcp0Kq9f5ZNSlvTNFL0kKU9Q15WnH6ago8Szt_EkbCBiNzoCI4k4zZTF30fqvgw4lXx13udTNBPKWOhgzddHOrRzT6nM3f_QenA-2fgMa2dbcuNF3BRZqE-rnMnhQx6gLOmApqsKa-ucI1EpN9P3p3lxskqH9lgdhiGwvgMEcLx6DMyq41EKKpqplu6oMd9XZR9mp7W15HxjOztkykciPYMr5k2qZlupfZmemk0kCZSXZRpyZz2My5nVu00MXhYjN00R4_6K2HuI2Be9hkPKsqkKOzZUwjHDPK0hr1FTRPR2jg3U_VnOo9_pT61_2Gn2TZ7d_Gs8j6RE29cHrEzOdtBcEBNRIGdC6YFrB2Hcw5Zb8k_p8iwtLkIfDP7a-eZXKVM"
     access_response = requests.post(
